@@ -1,0 +1,268 @@
+name: freecad
+base: core18
+adopt-info: freecad
+summary: An open source parametric 3D CAD modeler
+description: |
+  FreeCAD is a parametric 3D modeler. Parametric modeling
+  allows you to easily modify your design by going back into
+  your model history and changing its parameters. FreeCAD is
+  open source (LGPL license) and completely modular, allowing
+  for very advanced extension and customization.
+
+  FreeCAD is multiplatfom, and reads and writes many open
+  file formats such as STEP, IGES, STL and others.
+
+grade: devel
+confinement: strict
+
+layout:
+  /usr/share/libdrm/amdgpu.ids:
+    symlink: $SNAP/kf5/usr/share/libdrm/amdgpu.ids
+
+apps:
+  freecad:
+    command: bin/launch-freecad
+    extensions: [kde-neon]
+    common-id: org.freecadweb.FreeCAD.desktop
+    desktop: share/applications/org.freecadweb.FreeCAD.desktop
+    plugs:
+      - home
+      - opengl
+      - removable-media
+      - gsettings
+      - network
+    environment:
+      __EGL_VENDOR_LIBRARY_DIRS: $SNAP/kf5/usr/share/glvnd/egl_vendor.d:$SNAP/usr/share/glvnd/egl_vendor.d
+      PYTHONPATH: $SNAP:$SNAP/lib/python3.6/site-packages:$SNAP/usr/lib/python3.6:$SNAP/usr/lib/python3.6/lib-dynload
+      FREECAD_USER_DATA: $SNAP_USER_COMMON
+      QT_QPA_PLATFORMTHEME: xdgdesktopportal
+
+parts:
+  launcher:
+    plugin: dump
+    source: snap/local/launcher
+    organize:
+      launch-freecad: bin/launch-freecad
+
+  pyside2:
+    plugin: python
+    python-packages:
+      - PySide2==5.12.3
+    prime:
+      - -lib/python3.6/site-packages/PySide2/Qt
+    stage-packages:
+      - libatk-bridge2.0-0
+      - libatk1.0-0
+      - libatspi2.0-0
+      - libgtk-3-0
+      - libxi6
+      - libxinerama1
+      - libxrandr2
+      - libxtst6
+
+  vtk:
+    plugin: cmake
+    source: https://gitlab.kitware.com/vtk/vtk.git
+    source-tag: v8.2.0
+    configflags:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DVTK_QT_VERSION=5
+      - -DBUILD_TESTING=OFF
+    build-snaps:
+      - kde-frameworks-5-core18-sdk
+    stage-packages:
+      - libxt6
+    prime:
+      - -include
+    
+  occt:
+    after: [vtk]
+    plugin: cmake
+    source: https://git.dev.opencascade.org/repos/occt.git
+    source-type: git
+    source-tag: V7_4_0
+    configflags:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DUSE_FREEIMAGE=ON
+      - -DUSE_VTK=ON
+      - -D3RDPARTY_VTK_INCLUDE_DIR=$SNAPCRAFT_STAGE/include/vtk-8.2
+      - -D3RDPARTY_VTK_LIBRARY_DIR=$SNAPCRAFT_STAGE/lib
+    build-packages:
+      - g++
+      - tcllib
+      - tklib
+      - tcl-dev
+      - tk-dev
+      - libfreetype6-dev
+      - libxt-dev
+      - libxmu-dev
+      - libxi-dev
+      - libgl1-mesa-dev
+      - libglu1-mesa-dev
+      - libfreeimage-dev
+      - libtbb-dev
+    stage-packages:
+      - libilmbase12
+      - libjxr0
+      - libopenexr22
+      - libraw16
+      - libtcl8.6
+      - libtk8.6
+      - libxft2
+    override-stage: |
+      snapcraftctl stage
+      cd $SNAPCRAFT_STAGE/lib/cmake/opencascade
+      sed -i 's|\\\${OCCT_INSTALL_BIN_LETTER}||g' *.cmake
+    prime:
+      - -include
+
+  ifcopenshell:
+    after: [occt]
+    plugin: cmake
+    source: https://github.com/IfcOpenShell/IfcOpenShell.git
+    source-tag: v0.6.0b0
+    source-subdir: cmake
+    build-packages:
+      - swig
+      - python3-dev
+    build-snaps:
+      - kde-frameworks-5-core18-sdk
+    configflags:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DOCC_INCLUDE_DIR=$SNAPCRAFT_STAGE/include/opencascade
+      - -DOCC_LIBRARY_DIR=$SNAPCRAFT_STAGE/lib
+      - -DCOLLADA_SUPPORT=OFF
+      - -DLIBXML2_INCLUDE_DIR=/snap/kde-frameworks-5-core18-sdk/current/usr/include/libxml2
+      - -DLIBXML2_LIBRARIES=/snap/kde-frameworks-5-core18-sdk/current/usr/lib/x86_64-linux-gnu/libxml2.so
+  
+  coin:
+    plugin: cmake
+    source: https://github.com/coin3d/coin.git
+    configflags:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DCOIN_BUILD_DOCUMENTATION=OFF
+      - -DCOIN_BUILD_TESTS=OFF
+      - -DCOINDIR=$SNAPCRAFT_PART_INSTALL
+    build-packages:
+      - g++
+      - mesa-common-dev
+      - libglu1-mesa-dev
+      - freeglut3-dev
+      - libboost-all-dev
+    prime:
+    - -include
+
+  pivy:
+    after: [coin]
+    plugin: python
+    source: https://github.com/coin3d/pivy.git
+    source-tag: 0.6.5
+    build-packages:
+      - swig
+  
+  gmsh:
+    after: [occt]
+    plugin: cmake
+    source: https://gitlab.onelab.info/gmsh/gmsh.git
+    source-tag: gmsh_4_5_6
+    configflags:
+      - -DCMAKE_BUILD_TYPE=Release
+    prime:
+      - -share/doc
+
+  pycollada:
+    plugin: python
+    source: https://github.com/pycollada/pycollada.git
+    source-tag: v0.7.1
+    stage:
+      - lib/python3.6/site-packages/collada
+      - lib/python3.6/site-packages/pycollada*
+
+  freecad:
+    after: [occt]
+    plugin: cmake
+    source: .
+    configflags:
+      - -DBUILD_QT5=ON
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DPYTHON_EXECUTABLE=/usr/bin/python3
+    build-packages:
+      - g++
+      - git
+      - libboost-all-dev
+      - libsimage-dev # optional
+      - libspnav-dev # optional
+      - doxygen # optional
+      - libeigen3-dev
+      - libgts-bin
+      - libgts-dev
+      - libkdtree++-dev
+      - libmedc-dev
+      - libopencv-dev
+      - libproj-dev
+      - libx11-dev
+      - libxerces-c-dev
+      - libzipios++-dev
+      - swig
+      - python3-dev
+      - python3-matplotlib
+      - python3-ply
+    build-snaps:
+      - kde-frameworks-5-core18-sdk
+    stage-packages:
+      - libaec0
+      - libboost-filesystem1.65.1
+      - libboost-program-options1.65.1
+      - libboost-python1.65.1
+      - libboost-regex1.65.1
+      - libboost-system1.65.1
+      - libboost-thread1.65.1
+      - libfreeimage3
+      - libhdf5-openmpi-100
+      - libhwloc5
+      - libilmbase12
+      - libjxr0
+      - libmedc1v5
+      - libopenexr22
+      - libopenmpi2
+      - libpython3.6
+      - libraw16
+      - libspnav0
+      - libsz2
+      - libxerces-c3.2
+      - python3-numpy
+      - python3-matplotlib
+      - python3-six
+      - python3-pyparsing
+      - python3-setuptools-scm
+      - python3-cycler
+      - python3-dateutil
+      - python3-git
+      - graphviz
+      - calculix-ccx # FEM
+    override-pull: |
+      snapcraftctl pull
+      version=$(git describe --tags --dirty | sed s/_/-/)
+      snapcraftctl set-version "$version"
+    override-stage: |
+      snapcraftctl stage
+      sed -i -E \
+        "s|^Icon=(.*)|Icon=\${SNAP}/share/icons/hicolor/scalable/apps/org.freecadweb.FreeCAD.svg|g" \
+        share/applications/org.freecadweb.FreeCAD.desktop
+    prime:
+      - -share/doc/FreeCAD
+
+  cleanup:
+    after: [freecad]
+    plugin: nil
+    build-snaps: [kde-frameworks-5-core18-sdk]
+    override-prime: |
+      set -eux
+      for snap in "core18" "kde-frameworks-5-core18-sdk"; do  # List all content-snaps you're using here
+        cd "/snap/$snap/current" && find . -type f,l -exec rm -f "$SNAPCRAFT_PRIME/{}" "$SNAPCRAFT_PRIME/usr/{}" \;
+      done
+      for CRUFT in bug lintian man; do
+        rm -rf $SNAPCRAFT_PRIME/usr/share/$CRUFT
+      done
+      find $SNAPCRAFT_PRIME/usr/share/doc/ -type f -not -name 'copyright' -delete
+      find $SNAPCRAFT_PRIME/usr/share -type d -empty -delete

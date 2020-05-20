@@ -1,0 +1,6 @@
+#!/bin/sh
+
+freecad="$SNAP/bin/FreeCAD"
+pythonpaths="$SNAP/lib/python3.6/site-packages"
+
+$freecad "$@" -P "$pythonpaths"

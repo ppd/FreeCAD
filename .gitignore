@@ -41,3 +41,4 @@ tags
 
 # crowdin file
 src/Tools/freecad.zip
+*.snap
