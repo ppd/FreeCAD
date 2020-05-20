@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# start desktop portal. Open & save dialogs might fail if it is not running
+dbus-send --print-reply \
+  --dest=org.freedesktop.DBus \
+  /org/freedesktop/DBus \
+  org.freedesktop.DBus.StartServiceByName \
+  string:org.freedesktop.portal.Desktop \
+  uint32:0 &
+
+exec "$@" \
+  -P "$SNAP/usr/lib/python3/dist-packages" \
+  -P "$SNAP/usr/lib/python3.6" \
+  -P "$SNAP/usr/lib/python3.6/lib-dynload"

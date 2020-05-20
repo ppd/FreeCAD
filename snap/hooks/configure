@@ -1,0 +1,17 @@
+#!/bin/sh -e
+
+mkdir -p $SNAP_DATA/fontconfig
+
+echo "<fontconfig>" > ${SNAP_DATA}/fontconfig/fonts.conf
+echo "<cachedir>${SNAP_DATA}/fontconfig</cachedir>" >> ${SNAP_DATA}/fontconfig/fonts.conf
+echo "<include ignore_missing=\"yes\">/etc/fonts/fonts.conf</include>" >> ${SNAP_DATA}/fontconfig/fonts.conf
+if [ ! -z $SNAP_DESTKOP_RUNTIME ]; then
+  echo "<include ignore_missing=\"yes\">${SNAP_DESKTOP_RUNTIME}/etc/fonts/fonts.conf</include>" >> ${SNAP_DATA}/fontconfig/fonts.conf
+fi
+echo "</fontconfig>" >> ${SNAP_DATA}/fontconfig/fonts.conf
+
+export FONTCONFIG_FILE=${SNAP_DATA}/fontconfig/fonts.conf
+
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/kf5/usr/lib/x86_64-linux-gnu:$SNAP/kf5/lib/x86_64-linux-gnu"
+
+exec ${SNAP}/snap/command-chain/snapcraft-runner ${SNAP}/kf5/usr/bin/fc-cache --force --system-only --verbose
