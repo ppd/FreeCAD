@@ -1,4 +1,4 @@
-name: freecad
+name: freecad-ppd
 base: core18
 adopt-info: freecad
 summary: An open source parametric 3D CAD modeler
