@@ -171,7 +171,8 @@ parts:
       - liblapack-dev
     configflags:
       - -DCMAKE_BUILD_TYPE=Release
-      - -DCMAKE_CXX_FLAGS="-I/usr/lib/x86_64-linux-gnu/openmpi/include"
+      - -DENABLE_OPENMP=ON
+      - -DENABLE_MED=OFF
     prime:
       - -share/doc
 
