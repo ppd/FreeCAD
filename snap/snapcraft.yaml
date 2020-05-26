@@ -165,6 +165,8 @@ parts:
     plugin: cmake
     source: https://gitlab.onelab.info/gmsh/gmsh.git
     source-tag: gmsh_4_5_6
+    build-packages:
+      - gfortran
     configflags:
       - -DCMAKE_BUILD_TYPE=Release
     prime:
