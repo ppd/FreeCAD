@@ -254,7 +254,7 @@ parts:
       - -share/doc/FreeCAD
 
   cleanup:
-    after: [freecad]
+    after: [launcher, pyside2, vtk, occt, ifcopenshell, coin, pivy, gmsh, pycollada, freecad]
     plugin: nil
     build-snaps: [kde-frameworks-5-core18-sdk]
     override-prime: |
