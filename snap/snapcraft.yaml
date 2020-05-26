@@ -205,8 +205,6 @@ parts:
       - libzipios++-dev
       - swig
       - python3-dev
-      - python3-matplotlib
-      - python3-ply
     build-snaps:
       - kde-frameworks-5-core18-sdk
     stage-packages:
@@ -238,6 +236,7 @@ parts:
       - python3-cycler
       - python3-dateutil
       - python3-git
+      - python3-ply
       - graphviz
       - calculix-ccx # FEM
     override-pull: |
