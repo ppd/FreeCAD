@@ -179,7 +179,7 @@ parts:
       - lib/python3.6/site-packages/pycollada*
 
   freecad:
-    after: [occt, coin]
+    after: [occt, coin, pyside2]
     plugin: cmake
     source: .
     configflags:
