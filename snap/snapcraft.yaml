@@ -167,6 +167,7 @@ parts:
     source-tag: gmsh_4_5_6
     build-packages:
       - gfortran
+      - libopenmpi-dev
     configflags:
       - -DCMAKE_BUILD_TYPE=Release
     prime:
