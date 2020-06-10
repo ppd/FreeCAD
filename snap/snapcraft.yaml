@@ -1,6 +1,6 @@
 name: freecad-ppd
 base: core18
-adopt-info: freecad
+adopt-info: freecad-version
 summary: An open source parametric 3D CAD modeler
 description: |
   FreeCAD is a parametric 3D modeler. Parametric modeling
@@ -178,10 +178,6 @@ parts:
       - python3-tk # FEM
       - elmerfem-csc # FEM
       - openscad  # OpenSCAD
-    override-pull: |
-      snapcraftctl pull
-      version=$(git describe --tags --dirty | sed "s|_|-|")
-      snapcraftctl set-version "$version"
     override-stage: |
       snapcraftctl stage
       sed -i -E \
@@ -190,8 +186,16 @@ parts:
     prime:
       - -share/doc/FreeCAD
 
+  freecad-version:
+    after: [freecad]
+    plugin: nil
+    override-build: |
+      cd $SNAPCRAFT_PROJECT_DIR
+      version=$(git describe --tags --dirty | sed "s|_|-|")
+      snapcraftctl set-version "$version"
+
   cleanup:
-    after: [scripts, stub-chown, freecad]
+    after: [scripts, stub-chown, freecad, freecad-version]
     plugin: nil
     build-snaps: [kde-frameworks-5-core18]
     override-prime: |
