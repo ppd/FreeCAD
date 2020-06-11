@@ -1094,7 +1094,7 @@ bool Document::saveAs(void)
 
     QString exe = qApp->applicationName();
     QString docFileName = QString::fromUtf8(getDocument()->FileName.getValue());
-    getMainWindow()->showMessage("docFileName = " + docFileName);
+    getMainWindow()->showMessage(QString::fromUtf8("docFileName = ") + docFileName);
     if (docFileName.isEmpty()) {
         docFileName = QString::fromUtf8("unnamed.FCStd");
     }
