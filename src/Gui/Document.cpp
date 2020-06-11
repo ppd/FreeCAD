@@ -36,6 +36,7 @@
 # include <boost/bind.hpp>
 # include <Inventor/actions/SoSearchAction.h>
 # include <Inventor/nodes/SoSeparator.h>
+# include <QDebug>
 #endif
 
 #include <cctype>
@@ -1093,7 +1094,9 @@ bool Document::saveAs(void)
     getMainWindow()->showMessage(QObject::tr("Save document under new filename..."));
 
     QString exe = qApp->applicationName();
+    qDebug() << "exe = "  << exe;
     QString docFileName = QString::fromUtf8(getDocument()->FileName.getValue());
+    qDebug() << "docFileName = " << docFileName << ", isEmpty = " << docFileName.isEmpty();
     if (docFileName.isEmpty()) {
         docFileName = QString::fromUtf8("unnamed.FCStd");
     }

@@ -190,6 +190,7 @@ parts:
     after: [freecad]
     plugin: nil
     override-build: |
+      set -eux
       cd $SNAPCRAFT_PROJECT_DIR
       version=$(git describe --tags --dirty | sed "s|_|-|")
       snapcraftctl set-version "$version"
