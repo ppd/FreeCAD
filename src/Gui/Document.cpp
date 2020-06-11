@@ -1094,11 +1094,12 @@ bool Document::saveAs(void)
 
     QString exe = qApp->applicationName();
     QString docFileName = QString::fromUtf8(getDocument()->FileName.getValue());
-    getMainWindow()->showMessage(QString::fromUtf8("docFileName = ") + docFileName);
+    
     if (docFileName.isEmpty()) {
         docFileName = QString::fromUtf8("unnamed.FCStd");
     }
-
+    getMainWindow()->showMessage(QString::fromUtf8("docFileName = ") + docFileName);
+    
     QString fn = FileDialog::getSaveFileName(getMainWindow(), QObject::tr("Save %1 Document").arg(exe), 
         docFileName, 
         QString::fromLatin1("%1 %2 (*.FCStd)").arg(exe).arg(QObject::tr("Document")));
